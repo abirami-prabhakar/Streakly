@@ -2,21 +2,27 @@ pipeline {
     agent any
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh 'pip install -r requirements.txt'
+                bat 'py -3.11 -m pip install -r requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'pytest'
+                bat 'py -3.11 -m pytest'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t streakly:latest .'
+                bat 'docker build -t streakly:latest .'
             }
         }
     }
@@ -25,8 +31,9 @@ pipeline {
         success {
             echo 'Streakly pipeline completed successfully!'
         }
+
         failure {
-            echo 'Pipeline failed. Check the logs.'
+            echo 'Pipeline failed. Check the console output.'
         }
     }
 }
