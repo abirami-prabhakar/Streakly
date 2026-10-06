@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streakly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="navbar">
+    <div class="logo">
+        <div class="logo-icon">S</div>
+        <div>
+            <h2>Streakly</h2>
+            <span>Build consistency.</span>
+        </div>
+    </div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Switch to dark mode">🌙</button>
+</header>
+
+<main class="container">
+    <section class="hero">
+        <div>
+            <p class="eyebrow">YOUR DAILY PROGRESS</p>
+            <h1 id="greeting">Good evening!</h1>
+            <p id="todayDate">Loading...</p>
+        </div>
+        <button id="addTaskButton" class="primary-button">+ Add Task</button>
+    </section>
+
+    <section class="progress-card">
+        <div class="progress-info">
+            <div>
+                <span>Today's Progress</span>
+                <h2><span id="completedCount">0</span> / <span id="totalCount">0</span> completed</h2>
+            </div>
+            <div class="percentage" id="percentage">0%</div>
+        </div>
+        <div class="progress-bar" role="progressbar" aria-label="Today's task completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="progressFill"></div></div>
+        <div class="streak-summary"><span class="streak-mark" aria-hidden="true">&#9733;</span><span><strong id="overallStreak">0 day streak</strong><small>Overall consistency</small></span></div>
+    </section>
+
+    <section>
+        <div class="section-header">
+            <div>
+                <h2>Today's Tasks</h2>
+                <p>Stay consistent, one day at a time.</p>
+            </div>
+        </div>
+        <div id="taskList" class="task-list">
+            <div class="empty-state">Loading tasks...</div>
+        </div>
+    </section>
+
+    <section class="weekly-section">
+        <div class="section-header">
+            <div>
+                <h2>Weekly Consistency</h2>
+                <p>Your scheduled habits at a glance.</p>
+            </div>
+        </div>
+        <div id="weekGrid" class="week-grid" aria-live="polite"></div>
+    </section>
+</main>
+
+<div id="taskModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div>
+                <p class="eyebrow">NEW TASK</p>
+                <h2>Add a task</h2>
+            </div>
+            <button id="closeModal" class="close-button">×</button>
+        </div>
+
+        <form id="taskForm">
+            <label>
+                Task name
+                <input id="taskName" type="text" placeholder="e.g. DSA Practice" required>
+            </label>
+
+            <label>
+                Description
+                <textarea id="taskDescription" placeholder="What do you want to accomplish?"></textarea>
+            </label>
+
+            <label>Repeat on</label>
+            <div class="days-selector">
+                <label class="day-option"><input type="checkbox" value="monday"><span>Mon</span></label>
+                <label class="day-option"><input type="checkbox" value="tuesday"><span>Tue</span></label>
+                <label class="day-option"><input type="checkbox" value="wednesday"><span>Wed</span></label>
+                <label class="day-option"><input type="checkbox" value="thursday"><span>Thu</span></label>
+                <label class="day-option"><input type="checkbox" value="friday"><span>Fri</span></label>
+                <label class="day-option"><input type="checkbox" value="saturday"><span>Sat</span></label>
+                <label class="day-option"><input type="checkbox" value="sunday"><span>Sun</span></label>
+            </div>
+
+            <button type="submit" class="primary-button full">Create Task</button>
+        </form>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
