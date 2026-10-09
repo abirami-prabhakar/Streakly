@@ -9,12 +9,6 @@ A simple productivity tracker based on days of the week.
 - Mark today's tasks complete
 - Track scheduled-day streaks
 - View daily progress
-- Blue/purple UI
-- Light/dark mode
-- SQLite database
-- Pytest tests
-- Docker support
-- Jenkins pipeline
 
 ## Run locally
 
