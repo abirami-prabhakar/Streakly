@@ -15,6 +15,7 @@ pipeline {
         TF_IN_AUTOMATION = 'true'
         TF_INPUT = 'false'
         TF_STATE_PATH = 'C:/Jenkins/terraform-state/streakly/terraform.tfstate'
+        TERRAFORM_EXE = 'C:/Users/Abirami Prabhakar/AppData/Local/Microsoft/WinGet/Packages/Hashicorp.Terraform_Microsoft.Winget.Source_8wekyb3d8bbwe/terraform.exe'
     }
     stages {
         stage('Checkout') { steps { checkout scm } }
@@ -25,9 +26,9 @@ pipeline {
                     New-Item -ItemType Directory -Path (Split-Path $env:TF_STATE_PATH -Parent) -Force | Out-Null
                 '''
                 dir('TerraformFiles') {
-                    bat 'terraform version'
-                    bat 'terraform init -input=false -reconfigure "-backend-config=path=%TF_STATE_PATH%"'
-                    bat 'terraform validate'
+                    bat '"%TERRAFORM_EXE%" version'
+                    bat '"%TERRAFORM_EXE%" init -input=false -reconfigure "-backend-config=path=%TF_STATE_PATH%"'
+                    bat '"%TERRAFORM_EXE%" validate'
                 }
             }
         }
@@ -38,7 +39,7 @@ pipeline {
                     string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
                     dir('TerraformFiles') {
-                        bat 'terraform plan -input=false -lock-timeout=60s -out=tfplan'
+                        bat '"%TERRAFORM_EXE%" plan -input=false -lock-timeout=60s -out=tfplan'
                     }
                 }
             }
@@ -51,8 +52,8 @@ pipeline {
                     string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
                     dir('TerraformFiles') {
-                        bat 'terraform apply -input=false -lock-timeout=60s tfplan'
-                        bat 'terraform output'
+                        bat '"%TERRAFORM_EXE%" apply -input=false -lock-timeout=60s tfplan'
+                        bat '"%TERRAFORM_EXE%" output'
                     }
                 }
             }
