@@ -1,0 +1,66 @@
+// Job 2: provision two EC2 instances, one in each public subnet.
+pipeline {
+    agent { label 'built-in' }
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+        skipDefaultCheckout(true)
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+    parameters {
+        booleanParam(name: 'APPLY', defaultValue: false, description: 'Enable to create/update AWS resources; leave off for plan only.')
+    }
+    environment {
+        AWS_DEFAULT_REGION = 'us-east-1'
+        TF_IN_AUTOMATION = 'true'
+        TF_INPUT = 'false'
+        TF_STATE_PATH = 'C:/Jenkins/terraform-state/streakly/terraform.tfstate'
+    }
+    stages {
+        stage('Checkout') { steps { checkout scm } }
+        stage('Terraform Init and Validate') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    New-Item -ItemType Directory -Path (Split-Path $env:TF_STATE_PATH -Parent) -Force | Out-Null
+                '''
+                dir('TerraformFiles') {
+                    bat 'terraform version'
+                    bat 'terraform init -input=false -reconfigure "-backend-config=path=%TF_STATE_PATH%"'
+                    bat 'terraform validate'
+                }
+            }
+        }
+        stage('Terraform Plan') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    dir('TerraformFiles') {
+                        bat 'terraform plan -input=false -lock-timeout=60s -out=tfplan'
+                    }
+                }
+            }
+        }
+        stage('Terraform Apply') {
+            when { expression { params.APPLY } }
+            steps {
+                withCredentials([
+                    string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    dir('TerraformFiles') {
+                        bat 'terraform apply -input=false -lock-timeout=60s tfplan'
+                        bat 'terraform output'
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always { dir('TerraformFiles') { bat '@if exist tfplan del /q tfplan' } }
+        success { echo 'Terraform job completed. After apply, public IPs appear in Terraform Output.' }
+        failure { echo 'Terraform job failed. Check Console Output.' }
+    }
+}

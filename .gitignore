@@ -7,3 +7,10 @@ venv/
 database.db
 .DS_Store
 .vscode/
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.tfstate.lock.info
+tfplan
+*.tfplan
+.docker-ci/

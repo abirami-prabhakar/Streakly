@@ -1,0 +1,17 @@
+.git/
+.terraform/
+TerraformFiles/
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+database.db
+*.db-journal
+*.db-wal
+*.db-shm
+.env
+Jenkinsfile
+Jenkinsfile.terraform
+.docker-ci/

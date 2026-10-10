@@ -1,12 +1,12 @@
 resource "aws_instance" "Example1" {
-  ami = var.ubuntu_ami
+  ami           = var.ubuntu_ami
   instance_type = var.instance_type
-  subnet_id = aws_subnet.subnet1.id
-  key_name = var.key_name
+  subnet_id     = aws_subnet.subnet1.id
+  key_name      = var.key_name
 
-  vpc_security_group_ids = [ aws_security_group.DemoSg.id ]
+  vpc_security_group_ids      = [aws_security_group.DemoSg.id]
   associate_public_ip_address = true
-  user_data = <<-EOF
+  user_data                   = <<-EOF
     #!/bin/bash
     apt-get update -y
     apt-get install -y docker.io

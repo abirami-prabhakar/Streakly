@@ -1,63 +1,39 @@
-resource "aws_security_group" "sg" {
+# Security Group
+resource "aws_security_group" "DemoSg" {
+  name   = "Ec2-firewall"
+  vpc_id = aws_vpc.vpc.id
+}
 
-  name        = "project-pep-sg"
-  description = "Security group for Project PEP"
+# SSH
+resource "aws_vpc_security_group_ingress_rule" "ssh" {
+  security_group_id = aws_security_group.DemoSg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 22
+  to_port           = 22
+  ip_protocol       = "tcp"
+}
 
-  # SSH
-  ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+# HTTP
+resource "aws_vpc_security_group_ingress_rule" "http" {
+  security_group_id = aws_security_group.DemoSg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 80
+  to_port           = 80
+  ip_protocol       = "tcp"
+}
 
-  # HTTP
-  ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+# HTTPS
+resource "aws_vpc_security_group_ingress_rule" "https" {
+  security_group_id = aws_security_group.DemoSg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
+}
 
-  # Application
-  ingress {
-    description = "Application"
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # DNS - TCP
-  ingress {
-    description = "DNS TCP"
-    from_port   = 53
-    to_port     = 53
-    protocol    = "tcp"
-    cidr_blocks = ["11.0.0.0/16"]
-  }
-
-  # DNS - UDP
-  ingress {
-    description = "DNS UDP"
-    from_port   = 53
-    to_port     = 53
-    protocol    = "udp"
-    cidr_blocks = ["11.0.0.0/16"]
-  }
-
-  # Outbound
-  egress {
-    description = "Allow all outbound traffic"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "Project-PEP-SG"
-  }
+# Outbound
+resource "aws_vpc_security_group_egress_rule" "all" {
+  security_group_id = aws_security_group.DemoSg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
 }
