@@ -7,17 +7,21 @@ pipeline {
         skipDefaultCheckout(true)
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
-    environment { IMAGE_NAME = 'ghcr.io/abirami-prabhakar/streakly' }
+    environment {
+        IMAGE_NAME = 'ghcr.io/abirami-prabhakar/streakly'
+        DOCKER_EXE = 'C:/Users/Abirami Prabhakar/AppData/Local/Programs/DockerDesktop/resources/bin/docker.exe'
+        DOCKER_HOST = 'npipe:////./pipe/dockerDesktopLinuxEngine'
+    }
     stages {
         stage('Checkout') { steps { checkout scm } }
         stage('Check Docker') {
             steps {
-                bat 'docker version'
-                bat 'docker info'
+                bat '"%DOCKER_EXE%" version'
+                bat '"%DOCKER_EXE%" info'
             }
         }
         stage('Build Image') {
-            steps { bat 'docker build --tag %IMAGE_NAME%:%BUILD_NUMBER% --tag %IMAGE_NAME%:latest .' }
+            steps { bat '"%DOCKER_EXE%" build --tag %IMAGE_NAME%:%BUILD_NUMBER% --tag %IMAGE_NAME%:latest .' }
         }
         stage('Push Image to GHCR') {
             steps {
@@ -27,11 +31,11 @@ pipeline {
                         $dockerConfigPath = Join-Path $env:WORKSPACE '.docker-ci'
                         New-Item -ItemType Directory -Path $dockerConfigPath -Force | Out-Null
                         try {
-                            $env:GHCR_TOKEN | docker --config $dockerConfigPath login ghcr.io --username $env:GHCR_USER --password-stdin
+                            $env:GHCR_TOKEN | & $env:DOCKER_EXE --config $dockerConfigPath login ghcr.io --username $env:GHCR_USER --password-stdin
                             if ($LASTEXITCODE -ne 0) { throw 'GHCR login failed' }
-                            docker --config $dockerConfigPath push "${env:IMAGE_NAME}:${env:BUILD_NUMBER}"
+                            & $env:DOCKER_EXE --config $dockerConfigPath push "${env:IMAGE_NAME}:${env:BUILD_NUMBER}"
                             if ($LASTEXITCODE -ne 0) { throw 'Versioned image push failed' }
-                            docker --config $dockerConfigPath push "${env:IMAGE_NAME}:latest"
+                            & $env:DOCKER_EXE --config $dockerConfigPath push "${env:IMAGE_NAME}:latest"
                             if ($LASTEXITCODE -ne 0) { throw 'Latest image push failed' }
                         } finally {
                             Remove-Item -LiteralPath (Join-Path $dockerConfigPath 'config.json') -Force -ErrorAction SilentlyContinue
